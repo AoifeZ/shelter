@@ -1,36 +1,30 @@
-// Initialize Supabase
-const SUPABASE_URL = "https://whornljepwbqwkwpuoxh.supabase.co"; 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indob3JubGplcHdicXdrd3B1b3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM3NjIyNzgsImV4cCI6MjA0OTMzODI3OH0.QdzqRJF2SxTVrAkGynJAnhW2gS8UhuIaULvI3t54CzM";
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// Function to save scores to Supabase
-async function saveScoresToSupabase() {
+// Function to download scores as CSV
+function downloadScoresCSV() {
     const scores = JSON.parse(localStorage.getItem("scores") || "{}");
+    
+    // Create CSV content
+    let csvContent = "artwork_id,title,fit_theme,inspire,originality,total_score\n"; // CSV header
 
-    // Prepare data for Supabase
-    const scoresArray = Object.entries(scores).map(([artworkID, scoreData]) => ({
-        artwork_id: artworkID,
-        title: scoreData.title,
-        fit_theme: scoreData.fitTheme || 0,
-        inspire: scoreData.inspire || 0,
-        originality: scoreData.originality || 0,
-        total_score: (parseInt(scoreData.fitTheme || 0) + parseInt(scoreData.inspire || 0) + parseInt(scoreData.originality || 0))
-    }));
+    Object.entries(scores).forEach(([artworkID, scoreData]) => {
+        const totalScore = (parseInt(scoreData.fitTheme || 0) + parseInt(scoreData.inspire || 0) + parseInt(scoreData.originality || 0));
+        const row = [
+            artworkID, 
+            scoreData.title, 
+            scoreData.fitTheme || 0, 
+            scoreData.inspire || 0, 
+            scoreData.originality || 0, 
+            totalScore
+        ].join(",");
+        csvContent += row + "\n";
+    });
 
-    try {
-        const { data, error } = await supabase
-            .from('artwork_scores')
-            .upsert(scoresArray, { onConflict: ['artwork_id'] }); 
-
-        if (error) {
-            console.error("Error saving scores to Supabase:", error);
-        } else {
-            console.log("Scores successfully saved to Supabase:", data);
-        }
-    } catch (err) {
-        console.error("Unexpected error:", err);
-    }
+    // Create a Blob and download it
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "scores.csv";
+    link.click();
 }
 
-// Call this function to save scores
-saveScoresToSupabase();
+// Add event listener to a download button (if desired)
+document.getElementById("download-csv-button").addEventListener("click", downloadScoresCSV);
