@@ -85,7 +85,10 @@
 
                 artworkItem.innerHTML = `
                     <div class="artwork-thumbnail-container">
-                        <img src="${artwork.Image}" alt="${artwork.Title}" class="artwork-thumbnail">
+                        <!-- Wrap the image in a link to sifting.html -->
+                        <a href="sifting.html?id=${artwork.ID}">
+                            <img src="${artwork.Image}" alt="${artwork.Title}" class="artwork-thumbnail">
+                        </a>
                     </div>
                     <div class="artwork-title">
                         <a href="sifting.html?id=${artwork.ID}">${artwork.Title}</a>
