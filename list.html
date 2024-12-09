@@ -8,16 +8,16 @@
     <link href="style.css" rel="stylesheet">
 </head>
 <body>
-   <nav class="navbar navbar-expand-lg">
-    <div class="container mt-4">
-        <h1>Artworks</h1>
-        <div class="d-flex">
-            <a href="index.html" class="btn btn-info text-white me-2">Grid View</a>
-            <button id="download-csv-button" class="btn btn-success">Download Scores</button>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container mt-4">
+            <h1>Artworks</h1>
+            <div class="d-flex">
+                <button id="download-csv-button" class="btn btn-success me-2">Download Scores</button>
+                <a href="index.html" class="btn btn-info text-white">Grid View</a>
+            </div>
         </div>
-    </div>
-</nav>
-
+    </nav>
+    
     <div class="container mt-4">
         <table class="table transparent-table">
             <thead>
@@ -32,6 +32,7 @@
             </tbody>
         </table>
     </div>
+
     <script>
         let artworks = [];
         // Fetch JSON data
@@ -70,41 +71,11 @@
             return null;
         }
 
-        // Function to download scores as CSV
-        function downloadScoresCSV() {
-            const scores = JSON.parse(localStorage.getItem("scores") || "{}");
-            
-            // Create CSV content
-            let csvContent = "artwork_id,title,fit_theme,inspire,originality,total_score\n"; // CSV header
-
-            artworks.forEach(artwork => {
-                const artworkID = artwork.ID;
-                const scoreData = scores[artworkID];
-                
-                if (scoreData) {
-                    const totalScore = (parseInt(scoreData.fitTheme || 0) + parseInt(scoreData.inspire || 0) + parseInt(scoreData.originality || 0));
-                    const row = [
-                        artworkID, 
-                        artwork.Title, // Using title from data.json
-                        scoreData.fitTheme || 0, 
-                        scoreData.inspire || 0, 
-                        scoreData.originality || 0, 
-                        totalScore
-                    ].join(",");
-                    csvContent += row + "\n";
-                }
-            });
-
-            // Create a Blob and download it
-            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "scores.csv";
-            link.click();
-        }
-
-        // Add event listener to a download button
-        document.getElementById("download-csv-button").addEventListener("click", downloadScoresCSV);
+        document.getElementById("download-csv-button").addEventListener("click", () => {
+            downloadScoresCSV(artworks);
+        });
     </script>
+
+    <script src="download.js"></script>
 </body>
 </html>
