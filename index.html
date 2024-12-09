@@ -48,7 +48,9 @@
 
                 artworkItem.innerHTML = `
             <div class="artwork-thumbnail-container">
-                <img src="${artwork.Image}" alt="${artwork.Title}" class="artwork-thumbnail">
+                <a href="sifting.html?id=${artwork.ID}">
+                  <img src="${artwork.Image}" alt="${artwork.Title}" class="artwork-thumbnail">
+                </a>
             </div>
             <div class="artwork-title">
                 ${index + 1}. <a href="sifting.html?id=${artwork.ID}">${artwork.Title}</a>
