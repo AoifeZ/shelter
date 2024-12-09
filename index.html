@@ -9,77 +9,125 @@
     <link href="style.css" rel="stylesheet">
 </head>
 
-    <body>
-        <nav class="navbar navbar-expand-lg">
-            <div class="container mt-4">
-                <h1>Artworks</h1>
-                <div class="d-flex">
-                    <button id="download-csv-button" class="btn btn-success me-2">Download Scores</button>
-                    <a href="list.html" class="btn btn-info text-white">List View</a>
-                </div>
-            </div>
-        </nav>
-    
+<body>
+    <nav class="navbar navbar-expand-lg">
         <div class="container mt-4">
-            <div class="artwork-container" id="artwork-list">
-                <!-- Artworks will be dynamically populated here -->
+            <h1>Artworks</h1>
+            <div class="d-flex">
+                <button id="download-csv-button" class="btn btn-success me-2">Download Scores</button>
+                <a href="list.html" class="btn btn-info text-white">List View</a>
             </div>
         </div>
-    
-        <script>
-            let artworks = [];
-    
-            // Fetch JSON data
-            fetch('data.json')
-                .then(response => response.json())
-                .then(data => {
-                    artworks = data;
-                    displayArtworkGrid();
-                })
-                .catch(error => console.error("Error loading JSON:", error));
-    
-            function displayArtworkGrid() {
-                const container = document.getElementById('artwork-list');
-                container.innerHTML = ''; // Clear previous content
-    
-                artworks.forEach((artwork, index) => {
-                    const score = getTotalScore(artwork.ID);
-                    const scoreText = score ? score : 'Not yet scored';
-    
-                    const artworkItem = document.createElement('div');
-                    artworkItem.classList.add('artwork-item');
-    
-                    artworkItem.innerHTML = `
-                        <div class="artwork-thumbnail-container">
-                            <a href="sifting.html?id=${artwork.ID}"><img src="${artwork.Image}" alt="${artwork.Title}" class="artwork-thumbnail"></a>
-                        </div>
-                        <div class="artwork-title">
-                            ${index + 1}. <a href="sifting.html?id=${artwork.ID}">${artwork.Title}</a>
-                        </div>
-                        <div class="artwork-score">${scoreText}</div>
-                    `;
-    
-                    container.appendChild(artworkItem);
-                });
-            }
-    
-            // Helper function to get the total score from localStorage
-            function getTotalScore(artworkID) {
-                const scores = JSON.parse(localStorage.getItem("scores") || "{}");
-                const artworkScores = scores[artworkID];
-                if (artworkScores) {
-                    return parseInt(artworkScores.fitTheme || 0) + parseInt(artworkScores.inspire || 0) + parseInt(artworkScores.originality || 0);
-                }
-                return null;
-            }
-    
-            // Add event listener to a download button
-            document.getElementById("download-csv-button").addEventListener("click", () => {
-                downloadScoresCSV(artworks);
+    </nav>
+
+    <div class="container mt-4">
+        <div class="artwork-container" id="artwork-list">
+            <!-- Artworks will be dynamically populated here -->
+        </div>
+        <!-- Pagination Controls -->
+        <div id="pagination-controls" class="d-flex justify-content-between my-5">
+            <button id="prev-button" class="btn btn-secondary" disabled>Previous page</button>
+            <span id="page-info">Page 1</span>
+            <button id="next-button" class="btn btn-secondary">Next page</button>
+        </div>
+    </div>
+
+    <script>
+        let artworks = [];
+        const artworksPerPage = 50;
+        let currentPage = 1;
+
+        // Fetch JSON data
+        fetch('data.json')
+            .then(response => response.json())
+            .then(data => {
+                artworks = data;
+                displayArtworkGrid();
+                updatePaginationControls();
+            })
+            .catch(error => console.error("Error loading JSON:", error));
+
+        function displayArtworkGrid() {
+            const container = document.getElementById('artwork-list');
+            container.innerHTML = ''; // Clear previous content
+
+            const startIndex = (currentPage - 1) * artworksPerPage;
+            const endIndex = Math.min(startIndex + artworksPerPage, artworks.length);
+
+            const artworksToDisplay = artworks.slice(startIndex, endIndex);
+
+            artworksToDisplay.forEach((artwork, index) => {
+                const score = getTotalScore(artwork.ID);
+                const scoreText = score ? score : 'Not yet scored';
+
+                const artworkItem = document.createElement('div');
+                artworkItem.classList.add('artwork-item');
+
+                artworkItem.innerHTML = `
+                    <div class="artwork-thumbnail-container">
+                        <a href="sifting.html?id=${artwork.ID}"><img src="${artwork.Image}" alt="${artwork.Title}" class="artwork-thumbnail"></a>
+                    </div>
+                    <div class="artwork-title">
+                        ${startIndex + index + 1}. <a href="sifting.html?id=${artwork.ID}">${artwork.Title}</a>
+                    </div>
+                    <div class="artwork-score">${scoreText}</div>
+                `;
+
+                container.appendChild(artworkItem);
             });
-        </script>
-    
-        <script src="download.js"></script>
-    </body>
-    
-    </html>
+        }
+
+        // Helper function to get the total score from localStorage
+        function getTotalScore(artworkID) {
+            const scores = JSON.parse(localStorage.getItem("scores") || "{}");
+            const artworkScores = scores[artworkID];
+            if (artworkScores) {
+                return parseInt(artworkScores.fitTheme || 0) + parseInt(artworkScores.inspire || 0) + parseInt(artworkScores.originality || 0);
+            }
+            return null;
+        }
+
+        // Update pagination controls (previous, next buttons, and page info)
+        function updatePaginationControls() {
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+            const pageInfo = document.getElementById('page-info');
+
+            // Enable/disable the previous button
+            prevButton.disabled = currentPage === 1;
+
+            // Enable/disable the next button
+            nextButton.disabled = currentPage === Math.ceil(artworks.length / artworksPerPage);
+
+            // Update the page info
+            pageInfo.textContent = `Page ${currentPage}`;
+        }
+
+        // Event listener for the previous button
+        document.getElementById('prev-button').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayArtworkGrid();
+                updatePaginationControls();
+            }
+        });
+
+        // Event listener for the next button
+        document.getElementById('next-button').addEventListener('click', () => {
+            if (currentPage < Math.ceil(artworks.length / artworksPerPage)) {
+                currentPage++;
+                displayArtworkGrid();
+                updatePaginationControls();
+            }
+        });
+
+        // Add event listener to a download button
+        document.getElementById("download-csv-button").addEventListener("click", () => {
+            downloadScoresCSV(artworks);
+        });
+    </script>
+
+    <script src="download.js"></script>
+</body>
+
+</html>
