@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artwork List - Shelter Sifting</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container mt-4">
+            <h1>Artwork List</h1>
+            <a href="index.html" class="btn btn-info">Grid View</a>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <h2>All Artworks</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody id="artwork-list">
+                <!-- Artworks will be dynamically populated here -->
+            </tbody>
+        </table>
+    </div>
+    <script>
+        let artworks = [];
+        // Fetch JSON data
+        fetch('data.json')
+            .then(response => response.json())
+            .then(data => {
+                artworks = data;
+                displayArtworkList();
+            })
+            .catch(error => console.error("Error loading JSON:", error));
+        // Display the list of artworks with their scores
+        function displayArtworkList() {
+            const listContainer = document.getElementById('artwork-list');
+            listContainer.innerHTML = '';
+            artworks.forEach((artwork, index) => {
+                const score = getTotalScore(artwork.ID);
+                const scoreText = score ? score : 'Not yet scored';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><a href="sifting.html?id=${artwork.ID}">${artwork.Title}</a></td>
+                    <td>${scoreText}</td>
+                `;
+                listContainer.appendChild(row);
+            });
+        }
+        // Helper function to get the total score from localStorage
+        function getTotalScore(artworkID) {
+            const scores = JSON.parse(localStorage.getItem("scores") || "{}");
+            const artworkScores = scores[artworkID];
+            if (artworkScores) {
+                return parseInt(artworkScores.fitTheme || 0) + parseInt(artworkScores.inspire || 0) + parseInt(artworkScores.originality || 0);
+            }
+            return null;
+        }
+    </script>
+</body>
+</html>
