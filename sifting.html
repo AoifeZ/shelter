@@ -182,10 +182,18 @@
         // Helper functions to save and retrieve scores (uses localStorage)
         function saveScore(id, field, value) {
             const scores = JSON.parse(localStorage.getItem("scores") || "{}");
+            const artwork = artworks.find(artwork => artwork.ID == id); // Find the artwork by its ID
+            const title = artwork ? artwork.Title : 'Unknown Artwork'; // Get the artwork title
+
             if (!scores[id]) {
                 scores[id] = {};
             }
+
             scores[id][field] = value;
+
+            // Store the title as part of the score data
+            scores[id].title = title;
+
             localStorage.setItem("scores", JSON.stringify(scores));
         }
 
@@ -193,6 +201,88 @@
             const scores = JSON.parse(localStorage.getItem("scores") || "{}");
             return scores[id] ? scores[id][field] : null;
         }
+
+        document.getElementById("save-button").addEventListener("click", () => {
+            const savedScores = JSON.parse(localStorage.getItem("scores") || "{}");
+            const scoresToSend = [];
+
+            // Collect all scores and titles
+            for (const artworkID in savedScores) {
+                const scoreData = savedScores[artworkID];
+                scoresToSend.push({
+                    artworkID: artworkID,            // Artwork ID
+                    title: scoreData.title,          // Artwork title
+                    fitTheme: scoreData.fitTheme,    // Fit theme score
+                    inspire: scoreData.inspire,      // Inspire score
+                    originality: scoreData.originality, // Originality score
+                    totalScore: parseInt(scoreData.fitTheme) + parseInt(scoreData.inspire) + parseInt(scoreData.originality) // Total score
+                });
+            }
+
+            fetch('https://script.google.com/macros/s/AKfycbwwgH8cuBHgD1amsqtwbn5dynvWDp5GnZ1ffUG9f60/dev', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(scoresToSend)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Scores successfully saved', data);
+                    document.getElementById("saved-message").style.display = "block";
+                    setTimeout(() => {
+                        document.getElementById("saved-message").style.display = "none";
+                    }, 2000);
+                })
+                .catch(error => {
+                    console.error('Error saving scores:', error);
+                });
+
+            // Show the saved message
+            document.getElementById("saved-message").style.display = "block";
+            setTimeout(() => {
+                document.getElementById("saved-message").style.display = "none";
+            }, 2000);
+        });
+
+        function displayScores() {
+            const savedScores = JSON.parse(localStorage.getItem("scores") || "{}");
+
+            // Loop through all the saved scores and display them
+            const scoreList = Object.values(savedScores).map(score => {
+                return `
+            <tr>
+                <td>${score.title}</td>
+                <td>${score.fitTheme}</td>
+                <td>${score.inspire}</td>
+                <td>${score.originality}</td>
+                <td>${parseInt(score.fitTheme) + parseInt(score.inspire) + parseInt(score.originality)}</td>
+            </tr>
+        `;
+            }).join('');
+
+            document.getElementById("score-table").innerHTML = `
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Fit Theme</th>
+                    <th>Inspire</th>
+                    <th>Originality</th>
+                    <th>Total Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${scoreList}
+            </tbody>
+        </table>
+    `;
+        }
+
+        // Call this function when you want to display the saved scores
+        displayScores();
+
+
     </script>
 </body>
 
