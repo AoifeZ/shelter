@@ -19,9 +19,11 @@
     <div id="artwork-container">
         <!-- Artwork details will be dynamically loaded here -->
     </div>
-    <div class=" container d-flex justify-content-between my-3 pb-5">
+    <div class="container d-flex justify-content-between my-3 pb-5">
         <button id="prev-button" class="btn btn-success">Previous</button>
         <button id="next-button" class="btn btn-success">Next</button>
+        <!-- Clear Score Button -->
+        <button id="clear-score-button" class="btn btn-danger">Clear Score</button>
     </div>
 
     <script>
@@ -50,13 +52,15 @@
             }
 
             container.innerHTML = `
-            <div class ="container">
+            <div class="container">
                 <div class="row">
-                    <!-- Image Column (50%) -->
                     <div class="col-md-6">
                         <img src="${artwork.Image}" class="img-fluid" alt="${artwork.Title}">
+                        <div class="mt-2">
+                            <strong>Open Image:</strong>
+                            <a href="${artwork.Image}" target="_blank">${artwork.Image}</a>
+                        </div>
                     </div>
-                    <!-- Content Column (50%) -->
                     <div class="col-md-6">
                         <div class="card">
                             <div class="card-body bg-body-secondary">
@@ -96,7 +100,7 @@
                             <div class="card-body border-top">
                                 <form>
                                     <!-- Fit Theme -->
-                                    <div class="mb-3 form-range-wrapper ">
+                                    <div class="mb-3 form-range-wrapper">
                                         <label for="fit-theme" class="form-label"><strong>From 1-10:</strong> How well does it fit the theme 'SHELTER'?</label>
                                         <input type="range" class="form-range" id="fit-theme" min="1" max="10" value="${getScore(artwork.ID, 'fitTheme') || 5}">
                                         <span class="form-text">Selected: <span id="fit-theme-value">${getScore(artwork.ID, 'fitTheme') || 5}</span></span>
@@ -111,7 +115,7 @@
 
                                     <!-- Originality -->
                                     <div class="mb-3 form-range-wrapper">
-                                        <label for="originality" class="form-label"><strong>From 1-10:</strong>  How original is the artwork?</label>
+                                        <label for="originality" class="form-label"><strong>From 1-10:</strong> How original is the artwork?</label>
                                         <input type="range" class="form-range" id="originality" min="1" max="10" value="${getScore(artwork.ID, 'originality') || 5}">
                                         <span class="form-text">Selected: <span id="originality-value">${getScore(artwork.ID, 'originality') || 5}</span></span>
                                     </div>
@@ -167,6 +171,18 @@
 
         document.getElementById("show-scores").addEventListener("click", () => {
             window.location.href = "list.html";
+        });
+
+        // Clear the scores for the current artwork
+        document.getElementById("clear-score-button").addEventListener("click", () => {
+            const artwork = artworks[currentIndex];
+            // Reset the scores
+            saveScore(artwork.ID, 'fitTheme', 5);
+            saveScore(artwork.ID, 'inspire', 5);
+            saveScore(artwork.ID, 'originality', 5);
+
+            // Reload artwork to update the displayed values
+            loadArtwork(currentIndex);
         });
 
         // Retrieve the saved score for a specific artwork
