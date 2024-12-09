@@ -23,56 +23,7 @@
         </div>
     </div>
 
-    <script>
-        let artworks = [];
-
-        // Fetch JSON data
-        fetch('data.json')
-            .then(response => response.json())
-            .then(data => {
-                artworks = data;
-                displayArtworkGrid();
-            })
-            .catch(error => console.error("Error loading JSON:", error));
-
-        function displayArtworkGrid() {
-            const container = document.getElementById('artwork-list');
-            container.innerHTML = ''; // Clear previous content
-
-            artworks.forEach((artwork, index) => {
-                const score = getTotalScore(artwork.ID);
-                const scoreText = score ? score : 'Not yet scored';
-
-                const artworkItem = document.createElement('div');
-                artworkItem.classList.add('artwork-item');
-
-                artworkItem.innerHTML = `
-            <div class="artwork-thumbnail-container">
-                <a href="sifting.html?id=${artwork.ID}">
-                  <img src="${artwork.Image}" alt="${artwork.Title}" class="artwork-thumbnail">
-                </a>
-            </div>
-            <div class="artwork-title">
-                ${index + 1}. <a href="sifting.html?id=${artwork.ID}">${artwork.Title}</a>
-            </div>
-            <div class="artwork-score">${scoreText}</div>
-        `;
-
-                container.appendChild(artworkItem);
-            });
-        }
-
-
-        // Helper function to get the total score from localStorage
-        function getTotalScore(artworkID) {
-            const scores = JSON.parse(localStorage.getItem("scores") || "{}");
-            const artworkScores = scores[artworkID];
-            if (artworkScores) {
-                return parseInt(artworkScores.fitTheme || 0) + parseInt(artworkScores.inspire || 0) + parseInt(artworkScores.originality || 0);
-            }
-            return null;
-        }
-    </script>
+    <script src="app.js"></script>
 </body>
 
 </html>
