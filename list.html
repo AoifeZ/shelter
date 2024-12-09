@@ -10,9 +10,9 @@
 <body>
     <nav class="navbar navbar-expand-lg">
         <div class="container mt-4">
-            <h1>Artwork List</h1>
-            <button id="download-csv-button" class="btn btn-success">Download Scores as CSV</button>
-            <a href="index.html" class="btn btn-info">Grid View</a>
+            <h1>Artworks</h1>
+            <button id="download-csv-button" class="btn btn-success">Download Scores</button>
+            <a href="index.html" class="btn btn-info text-white">Grid View</a>
         </div>
     </nav>
     <div class="container mt-4">
@@ -39,6 +39,7 @@
                 displayArtworkList();
             })
             .catch(error => console.error("Error loading JSON:", error));
+
         // Display the list of artworks with their scores
         function displayArtworkList() {
             const listContainer = document.getElementById('artwork-list');
@@ -55,6 +56,7 @@
                 listContainer.appendChild(row);
             });
         }
+
         // Helper function to get the total score from localStorage
         function getTotalScore(artworkID) {
             const scores = JSON.parse(localStorage.getItem("scores") || "{}");
@@ -64,37 +66,42 @@
             }
             return null;
         }
+
         // Function to download scores as CSV
-function downloadScoresCSV() {
-    const scores = JSON.parse(localStorage.getItem("scores") || "{}");
-    
-    // Create CSV content
-    let csvContent = "artwork_id,title,fit_theme,inspire,originality,total_score\n"; // CSV header
+        function downloadScoresCSV() {
+            const scores = JSON.parse(localStorage.getItem("scores") || "{}");
+            
+            // Create CSV content
+            let csvContent = "artwork_id,title,fit_theme,inspire,originality,total_score\n"; // CSV header
 
-    Object.entries(scores).forEach(([artworkID, scoreData]) => {
-        const totalScore = (parseInt(scoreData.fitTheme || 0) + parseInt(scoreData.inspire || 0) + parseInt(scoreData.originality || 0));
-        const row = [
-            artworkID, 
-            scoreData.title, 
-            scoreData.fitTheme || 0, 
-            scoreData.inspire || 0, 
-            scoreData.originality || 0, 
-            totalScore
-        ].join(",");
-        csvContent += row + "\n";
-    });
+            artworks.forEach(artwork => {
+                const artworkID = artwork.ID;
+                const scoreData = scores[artworkID];
+                
+                if (scoreData) {
+                    const totalScore = (parseInt(scoreData.fitTheme || 0) + parseInt(scoreData.inspire || 0) + parseInt(scoreData.originality || 0));
+                    const row = [
+                        artworkID, 
+                        artwork.Title, // Using title from data.json
+                        scoreData.fitTheme || 0, 
+                        scoreData.inspire || 0, 
+                        scoreData.originality || 0, 
+                        totalScore
+                    ].join(",");
+                    csvContent += row + "\n";
+                }
+            });
 
-    // Create a Blob and download it
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "scores.csv";
-    link.click();
-}
+            // Create a Blob and download it
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "scores.csv";
+            link.click();
+        }
 
-// Add event listener to a download button (if desired)
-document.getElementById("download-csv-button").addEventListener("click", downloadScoresCSV);
-
+        // Add event listener to a download button
+        document.getElementById("download-csv-button").addEventListener("click", downloadScoresCSV);
     </script>
 </body>
 </html>
