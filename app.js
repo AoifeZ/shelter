@@ -19,8 +19,8 @@ async function saveScoresToSupabase() {
 
     try {
         const { data, error } = await supabase
-            .from('artwork_scores') // Replace with your Supabase table name
-            .upsert(scoresArray, { onConflict: ['artwork_id'] }); // 'artwork_id' must be unique in your Supabase table
+            .from('artwork_scores')
+            .upsert(scoresArray, { onConflict: ['artwork_id'] }); 
 
         if (error) {
             console.error("Error saving scores to Supabase:", error);
