@@ -22,8 +22,6 @@
     <div class="container d-flex justify-content-between my-3 pb-5">
         <button id="prev-button" class="btn btn-success">Previous</button>
         <button id="next-button" class="btn btn-success">Next</button>
-        <!-- Clear Score Button -->
-        <button id="clear-score-button" class="btn btn-danger">Clear Score</button>
     </div>
 
     <script>
@@ -171,18 +169,6 @@
 
         document.getElementById("show-scores").addEventListener("click", () => {
             window.location.href = "list.html";
-        });
-
-        // Clear the scores for the current artwork
-        document.getElementById("clear-score-button").addEventListener("click", () => {
-            const artwork = artworks[currentIndex];
-            // Reset the scores
-            saveScore(artwork.ID, 'fitTheme', 5);
-            saveScore(artwork.ID, 'inspire', 5);
-            saveScore(artwork.ID, 'originality', 5);
-
-            // Reload artwork to update the displayed values
-            loadArtwork(currentIndex);
         });
 
         // Retrieve the saved score for a specific artwork
