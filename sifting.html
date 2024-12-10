@@ -13,7 +13,10 @@
     <nav class="navbar navbar-expand-lg d-flex justify-content-between align-items-center">
         <div class="container mt-4">
             <h1>Artwork Selection</h1>
-            <button id="show-scores" class="btn btn-info text-white">Show All Scores</button>
+            <div class="d-flex">
+                <button id="download-csv-button" class="btn btn-success me-2">Download Scores</button>
+                <button id="show-scores" class="btn btn-info text-white">Show All Scores</button>
+            </div>
         </div>
     </nav>
     <div id="artwork-container">
@@ -34,7 +37,7 @@
             .then(data => {
                 artworks = data;
                 const artworkID = new URLSearchParams(window.location.search).get('id');
-                currentIndex = artworks.findIndex(artwork => artwork.ID == artworkID); 
+                currentIndex = artworks.findIndex(artwork => artwork.ID == artworkID);
                 loadArtwork(currentIndex);
             })
             .catch(error => console.error("Error loading JSON:", error));
@@ -62,6 +65,7 @@
                     <div class="col-md-6">
                         <div class="card">
                             <div class="card-body bg-body-secondary">
+                                <p><strong>#</strong> ${index + 1}</p>
                                 <h3 class="card-title my-3">${artwork.Title}</h3>
                                 <p class="card-text">${artwork.Content}</p>
 
@@ -95,7 +99,7 @@
                                 <p><strong>How the artwork connects to the theme of Shelter:</strong> ${artwork["How it connects to the theme of Shelter"] || 'N/A'}</p>
                                 <p>
                                     <strong>Recorded / Alternative Answer:</strong> 
-                                        ${artwork["Recorded answer"] ? `<a href="${artwork["Recorded answer"]}" target="_blank"> ${artwork["Recorded answer"]} </a>`: "N/A"}
+                                        ${artwork["Recorded answer"] ? `<a href="${artwork["Recorded answer"]}" target="_blank"> ${artwork["Recorded answer"]} </a>` : "N/A"}
                                 </p>
 
                             </div>                            
@@ -190,7 +194,12 @@
             scores[id][field] = value;
             localStorage.setItem("scores", JSON.stringify(scores));
         }
+        // Add event listener to a download button
+        document.getElementById("download-csv-button").addEventListener("click", () => {
+            downloadScoresCSV(artworks);
+        });
     </script>
+    <script src="download.js"></script>
 </body>
 
 </html>
