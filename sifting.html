@@ -93,7 +93,11 @@
                                 </div>
 
                                 <p><strong>How the artwork connects to the theme of Shelter:</strong> ${artwork["How it connects to the theme of Shelter"] || 'N/A'}</p>
-                                <p><strong>Recorded answer:</strong> ${artwork["Recorded answer"] || "N/A"}</p>
+                                <p>
+                                    <strong>Recorded answer:</strong> 
+                                        ${artwork["Recorded answer"] ? `<a href="${artwork["Recorded answer"]}" target="_blank"> ${artwork["Recorded answer"]} </a>`: "N/A"}
+                                </p>
+
                             </div>                            
                             <div class="card-body border-top">
                                 <form>
